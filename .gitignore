@@ -2,4 +2,6 @@ __pycache__/
 *.py[cod]
 .venv/
 venv/
+output/
+experiments/results/
 .DS_Store
