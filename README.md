@@ -1,64 +1,122 @@
-# ASTRA
+# ASTRA v1.0
 
-**ASTRA — A Computational Astrodynamics & Trajectory Analysis Laboratory**
+**Computational Astrodynamics & Trajectory Analysis Laboratory**
 
-ASTRA is a small Python physics project for studying how numerical methods affect simulated trajectories. The starter version models 2D motion around Earth, compares the simple Euler integrator with fourth-order Runge–Kutta (RK4), and can also simulate a projectile with optional atmospheric drag.
+ASTRA is a Python computational-physics project for studying trajectories, orbital mechanics, perturbations, numerical integration, and sensitivity to initial conditions.
 
-## Why this project exists
+## What ASTRA can do
 
-A computer never follows a continuous trajectory directly. It advances the system in finite time steps, so the numerical method and step size can change the result. ASTRA makes that error visible by running the same physical scenario with different integrators and comparing the resulting paths and energy drift.
+- Simulate 2D Earth orbits with Newtonian gravity.
+- Compare **Euler** and **RK4** integration and measure energy drift.
+- Model a simple exponential atmosphere with aerodynamic drag.
+- Add an equatorial-plane **J2 perturbation** term.
+- Simulate projectiles with optional **Earth-rotation launch boost**.
+- Run a normalized **Earth-Moon circular restricted three-body problem (CR3BP)**.
+- Perform **sensitivity analysis** by perturbing initial orbital velocity.
+- Export reproducible CSV data and SVG trajectory plots.
+- Run automated unit tests and an integrator benchmark experiment.
 
-## Features
+## Why the project matters
 
-- 2D Newtonian Earth gravity
-- Circular-orbit initial conditions
-- Projectile mode
-- Optional exponential-atmosphere drag
-- Euler and RK4 numerical integration
-- CSV trajectory export
-- SVG trajectory visualization
-- Mechanical-energy drift reporting for numerical-method comparison
+Numerical simulations approximate continuous physics using finite time steps. ASTRA shows how a numerical method can change a trajectory even when the underlying physical equations are identical. This makes the project both an astrodynamics simulator and a numerical-analysis laboratory.
 
-## Files
-
-- `astra.py` — command-line simulator and output generation
-- `physics.py` — constants, force models, Euler, RK4, and energy calculations
-- `sample_output/` — generated example results
-
-## Requirements
-
-Python 3.10+ is recommended. This starter version uses only the Python standard library.
-
-## Run it
-
-From the project folder:
+## Quick start
 
 ```bash
 python astra.py
 ```
 
-Example: 400 km circular orbit with a 60 s time step:
+This runs a 400 km orbit with both Euler and RK4.
+
+### Orbit + J2
 
 ```bash
-python astra.py --mode orbit --altitude-km 400 --dt 60
+python astra.py --mode orbit --altitude-km 400 --dt 10 --j2
 ```
 
-Example: projectile with atmospheric drag:
+### Projectile + drag + Earth rotation
 
 ```bash
-python astra.py --mode projectile --altitude-km 0.001 --speed-mps 800 --angle-deg 45 --dt 0.1 --duration 120 --drag
+python astra.py --mode projectile --speed-mps 800 --angle-deg 45 --dt 0.1 --drag --earth-rotation --latitude-deg 24.45
 ```
 
-Choose one integrator:
+### Earth-Moon restricted three-body model
 
 ```bash
-python astra.py --method rk4
+python astra.py --mode threebody --dt 0.001 --duration 10 --method rk4
 ```
 
-## What to observe
+The CR3BP mode uses standard normalized rotating-frame units.
 
-For an orbit, Euler usually accumulates much more numerical error than RK4 at the same time step. Compare the final altitude and reported energy drift in the terminal, then open `sample_output/trajectory.svg` to see the paths.
+### Sensitivity experiment
 
-## Next development steps
+```bash
+python astra.py --mode sensitivity --altitude-km 400 --dt 10 --perturbation 0.0001
+```
 
-The starter project can grow into a larger astrodynamics laboratory with adaptive integration, perturbation models, three-body dynamics, sensitivity analysis, test coverage, notebooks, and an interactive interface.
+## Run tests
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+## Run benchmark experiment
+
+```bash
+python experiments.py
+```
+
+This produces `experiments/results/integrator_benchmark.csv` and `benchmark.md`.
+
+## Project structure
+
+```text
+ASTRA/
+├── astra.py              # CLI + simulations + CSV/SVG output
+├── physics.py            # physics models and numerical integrators
+├── experiments.py        # numerical-method benchmark
+├── tests/
+│   └── test_astra.py     # automated tests
+├── experiments/
+│   └── results/          # generated benchmark reports
+├── output/               # generated simulation results
+├── LICENSE
+└── README.md
+```
+
+## Physics implemented
+
+### Two-body gravity
+
+`a = -mu * r_vec / r^3`
+
+### Atmospheric drag
+
+`a_D = -(1/2) * rho * C_D * (A/m) * v * v_vec`
+
+with a simplified exponential atmosphere.
+
+### J2 perturbation
+
+ASTRA includes a 2D equatorial approximation to Earth's oblateness perturbation. It is intentionally a teaching model, not a mission-grade propagator.
+
+### CR3BP
+
+The planar Earth-Moon circular restricted three-body problem is implemented in normalized rotating coordinates, allowing qualitative investigation of multi-body dynamics.
+
+## Numerical methods
+
+- Forward Euler — simple, fast, but accumulates large orbital error.
+- Classical RK4 — more computational work per step, but dramatically better short-term orbital accuracy.
+
+## Limitations
+
+ASTRA v1.0 is educational research software, not a spacecraft navigation or mission-design tool. The atmospheric model is simplified, J2 is restricted to a 2D approximation, and CR3BP uses idealized circular normalized dynamics.
+
+## Author
+
+**Hasan Alhashmi (Astro7asan)** — 2026
+
+## License
+
+MIT License.
